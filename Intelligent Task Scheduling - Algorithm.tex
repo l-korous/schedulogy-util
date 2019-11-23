@@ -1,0 +1,103 @@
+\RequirePackage{fix-cm}
+%
+%\documentclass{svjour3}                     % onecolumn (standard format)
+%\documentclass[smallcondensed]{svjour3}     % onecolumn (ditto)
+\documentclass[smallextended]{svjour3}       % onecolumn (second format)
+%\documentclass[twocolumn]{svjour3}          % twocolumn
+%
+\smartqed  % flush right qed marks, e.g. at end of proof
+%
+\usepackage{graphicx}
+\renewcommand{\subsectionmark}[1]{\markright{#1}{}}
+%
+% \usepackage{mathptmx}      % use Times fonts if available on your TeX system
+%
+% insert here the call for the packages your document requires
+%\usepackage{latexsym}
+% etc.
+%
+% please place your own definitions here and don't use \def but
+% \newcommand{}{}
+%
+% Insert the name of "your journal" with
+% \journalname{myjournal}
+%
+\usepackage{amssymb,amsmath}
+\usepackage{float}
+\frenchspacing
+\pagenumbering{arabic}
+\oddsidemargin  0.3in	% levy okraj stranky; pripocte se 1 inch
+\evensidemargin 0.2in	% pravy okraj stranky; pripocte se 1 inch
+\textwidth      5.8in	% sirka textu
+\headheight     0.0in	% vyska hlavicky
+\topmargin      0.2in	% horni okraj
+\textheight     8.5in	% vyska textu
+\begin{document}
+
+\title{Intelligent Task Scheduling - Algorithm}
+
+
+%% use optional labels to link authors explicitly to addresses:
+\author{Lukas Korous}
+
+\institute{Lukas Korous \email{lukas.korous@gmail.com} }
+
+\maketitle
+
+\section{Application - Intelligent task scheduling}\ \\
+The user inserts a set of tasks, with dependencies among them, with deadlines, with conditions limiting when these tasks can be carried out and in how long intervals of work has the total amount of work for the task be done.\ \\\ \\
+
+The application returns a set of time intervals ("slots"), each associated with a certain task, for which all the conditions, dependencies, and deadlines are fulfilled.
+
+\section{Mathematical description}
+\subsection{Data}\ \\ 
+All values are integers.\ \\
+We are given a set of $N$ entities ("tasks")
+
+$$T = \left\{t_i\right\}_{i = 1}^{N}$$
+\ \\
+with $len$ attribute representing length:
+$$\left\{len\left(t_i\right)\right\}_{i = 1}^{N}, len\left(t_i\right) > 0, i = 1, ..., N,$$
+\ \\
+with $dl$ attribute representing deadline:
+$$\left\{dl\left(t_i\right)\right\}_{i = 1}^{N}, dl\left(t_i\right) > 0, i = 1, ..., N,$$
+\ \\
+attributes $minSlotLen,\,maxSlotLen$ representing minimum and maximum length of intervals associated with the task:
+$$minSlotLen > 0,\ maxSlotLen > 0,\ maxSlotLen >= minSlotLen$$
+$$\left\{minSlotLen\left(t_i\right)\right\}_{i = 1}^{N}, \left\{maxSlotLen\left(t_i\right)\right\}_{i = 1}^{N},$$
+\ \\
+set of intervals ("allowed slots") where the intervals associated with the task can be scheduled ($N_{a_i}$ is known):
+$$\left\{\left[a_{ijL}, a_{ijR}\right]\right\}_{j = 1}^{N_{a_i}}, i = 1, ..., N,$$
+\ \\
+and $dep$ predicates representing dependencies:
+$$dep_{ij},$$
+\ \\
+where $dep_{ij}$ has the following meaning: $dep_{ij}$ iff $t_j$ depends on $t_i$.
+
+\subsection{Conditions}
+We are looking for a set of integer intervals ("slots"):
+
+$$\left\{\left[s_{ijL}, s_{ijR}\right]\right\}_{j = 1}^{N_i},\ i = 1, ...N,$$
+
+where $N_i$ is the (unknown) number of intervals associated with the task $t_i$ with the following conditions:
+
+1. sum of intervals = length of task:
+$$\sum_{j = 1}^{N_i} s_{ijR} - s_{ijL} = len\left(t_i\right),\ i = 1, ..., N$$
+
+2. intervals do not overlap:
+$$\forall i, j, k, l: s_{ijL} >= s_{klR} \cup s_{klL} >= s_{ijR}$$
+ 
+3. dependencies are satisfied:
+$$dep_{ik} \rightarrow \forall i, j, k, l: s_{ijR} <= s_{klL}$$
+
+4. minSlotLen, maxSlotLen are respected:
+$$\forall i, j: s_{ijR} - s_{ijL} \in \left[minSlotLen\left(t_i\right), maxSlotLen\left(t_i\right)\right]$$
+
+5. Allowed slots $\left[a_{ijL}, a_{ijR}\right]$ are respected:
+$$\forall i, j: \exists k \in \left[1, ..., N_{a_i}\right] : s_{ijR} <= a_{ikR} \cap s_{ijL} >= a_{ikL}.$$
+
+6. Deadlines are satisfied
+$$\forall i, j: s_{ijR} <= dl\left(t_i\right)$$
+
+
+\end{document}
